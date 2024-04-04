@@ -7,7 +7,7 @@ const personalEmailPassword = process.env.personalEmailPassword;
 const notifyTo = process.env.notifyEmail;
 const adrenalineUser = process.env.adrenalineUser;
 const adrenalinePassword = process.env.adrenalinePassword;
-const adrenalineDisplayUerName = process.env.adrenalineDisplayUerName;
+const adrenalineDisplayUserName = process.env.adrenalineDisplayUserName;
 const adrenalineURL =  process.env.adrenalineURL;
 
 const transporter = nodemailer.createTransport({
@@ -22,39 +22,59 @@ const transporter = nodemailer.createTransport({
 });
 
 async function clockIn(){
-    console.log('ClockIn Started', new Date());
-    const browser = await chromium.launch({ headless: true , channel: 'chrome'});
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await page.goto(adrenalineURL);
-    await page.fill('input[type=text]', adrenalineUser);
-    await page.fill('input[type=password]', adrenalinePassword);
-    await page.getByText('Login').click();
-    await page.waitForSelector('text=Clock-in');
-    await page.getByText('Clock-in').click();
-    await browser.close();
-    console.log('clockedIn Success', new Date());
-    sendEmail('clockIn');
+    try {
+        console.info('ClockIn Started', new Date());
+        const browser = await chromium.launch({ headless: true , channel: 'chrome'});
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await page.goto(adrenalineURL);
+        await page.fill('input[type=text]', adrenalineUser);
+        await page.fill('input[type=password]', adrenalinePassword);
+        await page.waitForTimeout(2000);
+        await page.getByText('Login').click();
+        await page.waitForTimeout(2000);
+        await page.waitForSelector('text=Clock-in');
+        await page.waitForTimeout(2000);
+        await page.getByText('Clock-in').click();
+        await page.waitForTimeout(2000);
+        await browser.close();
+        console.info('clockedIn Success', new Date());
+        sendEmail('clockIn');
+    } catch (error) {
+        console.error(error)
+    }
+
 
 }
 
 async function clockOut(){
-    console.log('Clockout Started', new Date());
-    const browser = await chromium.launch({ headless: true , channel: 'chrome'});
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await page.goto(adrenalineURL);
-    await page.fill('input[type=text]', adrenalineUser);
-    await page.fill('input[type=password]', adrenalinePassword);
-    await page.getByText('Login').click();
-    await page.waitForSelector(`text= ${adrenalineDisplayUerName}`, { state: 'attached'});
-    await page.locator('img.img-profile').click();
-    (await page.waitForSelector('text=Exit application', { state: 'attached'})).click();
-    await page.waitForSelector('text= Do you want to clockout ?', { state: 'attached'});
-    (await page.waitForSelector('text=Yes', { state: 'attached'})).click();
-    await browser.close();
-    console.log('clockedOut  Success', new Date());
-    sendEmail('clockOut');
+    try {
+        console.info('Clockout Started', new Date());
+        const browser = await chromium.launch({ headless: false , channel: 'chrome'});
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await page.goto(adrenalineURL);
+        await page.fill('input[type=text]', adrenalineUser);
+        await page.fill('input[type=password]', adrenalinePassword);
+        await page.waitForTimeout(2000);
+        await page.getByText('Login').click();
+        await page.waitForTimeout(2000);
+        await page.waitForSelector(`text= ${adrenalineDisplayUserName}`, { state: 'attached'});
+        await page.waitForTimeout(2000);
+        await page.locator('img.img-profile').click();
+        await page.waitForTimeout(2000);
+        (await page.waitForSelector('text=Exit application', { state: 'attached'})).click();
+        await page.waitForTimeout(2000);
+        await page.waitForSelector('text= Do you want to clockout ?', { state: 'attached'});
+        await page.waitForTimeout(2000);
+        (await page.waitForSelector('text=Yes', { state: 'attached'})).click();
+        await page.waitForTimeout(2000);
+        await browser.close();
+        console.info('clockedOut  Success', new Date());
+        sendEmail('clockOut');
+    } catch (error) {
+        console.error(error)
+    }
 }
 
 cron.schedule('0 10 * * 1-5', clockIn, { scheduled: true, timezone: 'Asia/Kolkata'});
@@ -72,8 +92,9 @@ function sendEmail(message) {
         if (error) {
             console.error('Error occurred while sending email:', error);
         } else {
-            console.log('Email sent:', info.response);
+            console.info('Email sent:', info.response);
         }
     });
 }
-console.log('Service Worker started', new Date());
+console.info('Service Worker started', new Date());
+
