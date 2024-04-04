@@ -76,3 +76,4 @@ function sendEmail(message) {
         }
     });
 }
+console.log('Service Worker started', new Date());
