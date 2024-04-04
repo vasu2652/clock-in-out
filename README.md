@@ -1,5 +1,5 @@
 # clock-in-out
-1. Change the values in the env file to  your values.
+1. Change the values in the env file to  your values. **Update AdrenalineURL to correct one.**
 2. For personalEmailPassword we have to generate an app password from your personal Gmail account you can follow the guidelines mentioned below for generating your app password.
 3. Install pm2 by running the command
    **npm install pm2 -g**
