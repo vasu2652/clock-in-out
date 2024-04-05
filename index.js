@@ -50,7 +50,7 @@ async function clockIn(){
 async function clockOut(){
     try {
         console.info('Clockout Started', new Date());
-        const browser = await chromium.launch({ headless: false , channel: 'chrome'});
+        const browser = await chromium.launch({ headless: true , channel: 'chrome'});
         const context = await browser.newContext();
         const page = await context.newPage();
         await page.goto(adrenalineURL);
